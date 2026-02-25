@@ -1,7 +1,7 @@
 ﻿// LFS Stats Viewer - Complete JavaScript Renderer
 // Reads JSON and renders all statistics
 
-const LFS_STATS_VERSION = '3.1.1';
+const LFS_STATS_VERSION = '3.1.2';
 
 let raceData = null;
 
@@ -177,8 +177,8 @@ function showFilePicker() {
         <div id="file-drop-zone">
             <div class="drop-icon">📂</div>
             <h2>LFS Stats Viewer</h2>
-            <p>${t('dropJsonHere') || 'Drag & drop a JSON file here'}</p>
-            <p class="file-picker-hint">${t('orClickToSelect') || 'or click to select a file'}</p>
+            <p>${t('dropJsonHere')}</p>
+            <p class="file-picker-hint">${t('orClickToSelect')}</p>
             <input type="file" id="file-input" accept=".json" class="hidden">
         </div>
     `;
@@ -216,7 +216,7 @@ function showFilePickerWithError(fileName) {
     if (dropZone) {
         const errorMsg = document.createElement('p');
         errorMsg.style.cssText = 'color: #ff6b6b; margin-top: 16px; font-size: 0.9em;';
-        errorMsg.textContent = (t('fileNotFound') || 'File not found') + ': ' + fileName;
+        errorMsg.textContent = t('fileNotFound') + ': ' + fileName;
         dropZone.appendChild(errorMsg);
     }
 }
@@ -410,13 +410,13 @@ function renderHeader() {
     const flags = (race.flags || []).filter(f => !(isQual && f === 'mustPit'));
     if (flags.length > 0) {
         const flagLabels = {
-            mustPit: { icon: '🔧', label: t('flagMustPit') || 'Mandatory Pit' },
-            canReset: { icon: '🔄', label: t('flagCanReset') || 'Reset Allowed' },
-            noRefuel: { icon: '⛽', label: t('flagNoRefuel') || 'No Refuel' },
-            noFloodLights: { icon: '🌙', label: t('flagNoFlood') || 'No Flood Lights' },
-            showFuel: { icon: '📊', label: t('flagShowFuel') || 'Fuel Info' },
-            forcedCockpit: { icon: '👁️', label: t('flagForcedCockpit') || 'Cockpit View' },
-            midRaceJoin: { icon: '🚪', label: t('flagMidRaceJoin') || 'Mid-Race Join' }
+            mustPit: { icon: '🔧', label: t('flagMustPit') },
+            canReset: { icon: '🔄', label: t('flagCanReset') },
+            noRefuel: { icon: '⛽', label: t('flagNoRefuel') },
+            noFloodLights: { icon: '🌙', label: t('flagNoFlood') },
+            showFuel: { icon: '📊', label: t('flagShowFuel') },
+            forcedCockpit: { icon: '👁️', label: t('flagForcedCockpit') },
+            midRaceJoin: { icon: '🚪', label: t('flagMidRaceJoin') }
         };
         const badges = flags.map(f => {
             const info = flagLabels[f] || { icon: '🏴', label: f };
@@ -1752,7 +1752,7 @@ function renderHeatmap() {
     const globalFastest = Math.min(...allTimes);
 
     // Build table
-    let html = `<h2>🌡️ ${t('heatmap') || 'Heatmap'}</h2>`;
+    let html = `<h2>🌡️ ${t('heatmap')}</h2>`;
     html += `<div class="heatmap-wrap"><table class="heatmap-table">`;
     html += `<thead><tr><th class="heatmap-driver">${t('driver')}</th>`;
     for (let i = 0; i < maxLaps; i++) {
@@ -1806,9 +1806,9 @@ function renderHeatmap() {
 
     // Legend
     html += `<div class="heatmap-legend">
-        <span class="heatmap-legend-fast">■</span> ${t('fast') || 'Fast'}
-        <span class="heatmap-legend-mid">■</span> ${t('average') || 'Average'}
-        <span class="heatmap-legend-slow">■</span> ${t('slow') || 'Slow'}
+        <span class="heatmap-legend-fast">■</span> ${t('fast')}
+        <span class="heatmap-legend-mid">■</span> ${t('average')}
+        <span class="heatmap-legend-slow">■</span> ${t('slow')}
         <span class="heatmap-fastest-mark">■</span> ★ ${t('fastestLap')}
         <span class="heatmap-pb-mark">■</span> ${t('personalBest')}
         <span class="heatmap-pit-mark">P</span> ${t('pitStop')}
@@ -2736,7 +2736,7 @@ function renderQualifyingProgressGraph(canvas, drivers, race) {
             plugins: {
                 title: {
                     display: true,
-                    text: [t('qualTimeProgress') || 'Qualifying Time Progress', t('gapToBestLap') || 'Gap to Best Lap'],
+                    text: [t('qualTimeProgress'), t('gapToBestLap')],
                     color: cc.chartTitleColor,
                     font: { size: 20, weight: 'bold' }
                 },
@@ -2889,7 +2889,7 @@ function renderQualifyingProgressGraph(canvas, drivers, race) {
                     type: 'linear',
                     min: 0,
                     max: maxTime * 1.02,
-                    title: { display: true, text: t('sessionTime') || 'Session Time', color: cc.axisLabelColor },
+                    title: { display: true, text: t('sessionTime'), color: cc.axisLabelColor },
                     ticks: {
                         color: cc.tickColor,
                         maxRotation: 0,
@@ -2900,7 +2900,7 @@ function renderQualifyingProgressGraph(canvas, drivers, race) {
                 y: {
                     reverse: true,
                     min: 0,
-                    title: { display: true, text: t('gapToBestLap') || 'Gap to Best Lap', color: cc.axisLabelColor },
+                    title: { display: true, text: t('gapToBestLap'), color: cc.axisLabelColor },
                     ticks: {
                         color: cc.tickColor,
                         callback: value => formatGapValue(value)
@@ -3725,16 +3725,16 @@ function renderCompare() {
 
     function buildCustomSelect(id, optional) {
         return `<div class="csel" id="${id}">
-            <div class="csel-selected"><span class="csel-text">${optional ? '— ' + (t('optional') || 'Optional') + ' —' : ''}</span><span class="csel-arrow">▾</span></div>
+            <div class="csel-selected"><span class="csel-text">${optional ? '— ' + (t('optional')) + ' —' : ''}</span><span class="csel-arrow">▾</span></div>
             <div class="csel-options">
-                ${optional ? `<div class="csel-option" data-value=""><span class="csel-placeholder">— ${t('optional') || 'Optional'} —</span></div>` : ''}
+                ${optional ? `<div class="csel-option" data-value=""><span class="csel-placeholder">— ${t('optional')} —</span></div>` : ''}
                 ${driverOptions.map(d => `<div class="csel-option" data-value="${escapeHtml(d.value)}"><span class="csel-pos">P${d.pos}</span> ${parseLFSColors(d.nameColored)}</div>`).join('')}
             </div>
         </div>`;
     }
 
     container.innerHTML = `
-        <h2>🔍 ${t('compare') || 'Compare'}</h2>
+        <h2>🔍 ${t('compare')}</h2>
         <div class="compare-selectors">
             ${buildCustomSelect('compare-driver-1', false)}
             <span class="compare-vs">VS</span>
@@ -3809,7 +3809,7 @@ function runComparison() {
     // Remove duplicates
     const unique = [...new Set(usernames)];
     if (unique.length < 2) {
-        container.innerHTML = `<p class="compare-empty">${t('selectTwoDrivers') || 'Select at least 2 different drivers'}</p>`;
+        container.innerHTML = `<p class="compare-empty">${t('selectTwoDrivers')}</p>`;
         return;
     }
 
@@ -3893,21 +3893,21 @@ function runComparison() {
         }).join('')}</tr>`;
 
     // Average lap (race only)
-    if (!isQual) html += `<tr><td class="compare-label">${t('avgLap') || 'Avg Lap'}</td>
+    if (!isQual) html += `<tr><td class="compare-label">${t('avgLap')}</td>
         ${stats.map(s => {
             const isBest = s.avg > 0 && Math.abs(s.avg - globalBestAvg) < 0.001;
             return `<td class="${isBest ? 'compare-best' : ''}">${s.avg > 0 ? formatLapTime(s.avg) : '-'}</td>`;
         }).join('')}</tr>`;
 
     // Consistency (race only)
-    if (!isQual) html += `<tr><td class="compare-label">${t('consistency') || 'Consistency'}</td>
+    if (!isQual) html += `<tr><td class="compare-label">${t('consistency')}</td>
         ${stats.map(s => {
             const isBest = Math.abs(s.consistency - globalBestConsistency) < 0.01;
             return `<td class="${isBest ? 'compare-best' : ''}">${s.consistency > 0 ? s.consistency.toFixed(1) + '%' : '-'}</td>`;
         }).join('')}</tr>`;
 
     // Std dev (race only)
-    if (!isQual) html += `<tr><td class="compare-label">${t('stdDev') || 'Std Dev'}</td>
+    if (!isQual) html += `<tr><td class="compare-label">${t('stdDev')}</td>
         ${stats.map(s => `<td>${s.stdDev > 0 ? s.stdDev.toFixed(3) + 's' : '-'}</td>`).join('')}</tr>`;
 
     // Top speed (qualifying or when data available)
@@ -3925,7 +3925,7 @@ function runComparison() {
     for (let i = 0; i < maxSplits; i++) {
         const splitTimes = stats.map(s => s.bestSplits[i] ? parseLapTime(s.bestSplits[i]) : Infinity);
         const bestSplit = Math.min(...splitTimes.filter(t => t < 3599));
-        html += `<tr><td class="compare-label">${t('bestSector') || 'Best Sector'} ${i + 1}</td>
+        html += `<tr><td class="compare-label">${t('bestSector')} ${i + 1}</td>
             ${stats.map((s, idx) => {
                 const t = splitTimes[idx];
                 const isBest = t < 3599 && Math.abs(t - bestSplit) < 0.001;
@@ -3938,7 +3938,7 @@ function runComparison() {
         html += `<tr><td class="compare-label">${t('pitStops')}</td>
             ${stats.map(s => `<td>${s.pitStops}</td>`).join('')}</tr>`;
         const minPitTime = Math.min(...stats.filter(s => s.totalPitTime > 0).map(s => s.totalPitTime));
-        html += `<tr><td class="compare-label">${t('pitTime') || 'Pit Time'}</td>
+        html += `<tr><td class="compare-label">${t('pitTime')}</td>
             ${stats.map(s => {
                 if (s.totalPitTime <= 0) return '<td>-</td>';
                 const isBest = Math.abs(s.totalPitTime - minPitTime) < 0.01;
@@ -3998,7 +3998,7 @@ function renderCompareChart(stats) {
         };
     });
 
-    const labels = Array.from({ length: maxLaps }, (_, i) => `${t('lapLabel') || 'L'}${i + 1}`);
+    const labels = Array.from({ length: maxLaps }, (_, i) => `${t('lapLabel')}${i + 1}`);
 
     // Build pit stop markers per driver
     const pitMarkers = [];

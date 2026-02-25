@@ -25,6 +25,7 @@ namespace LFSStatistics
         int RefreshInterval = 100;
         bool flagFirst = true; // used to get all connections on first STA packet
         bool preserveLapsOnPit; // Keep lap data when driver ESC-pits and rejoins
+        bool sessionFinished;   // True after session ends (IS_RES), prevents counting post-race contacts
         ConsoleCtrl cc;
         Configuration config;
 
@@ -152,6 +153,7 @@ namespace LFSStatistics
             // Load Config
             config = new Configuration(configFileName);
             preserveLapsOnPit = config.PreserveLapsOnPit;
+            sessionFinished = false;
 
             LFSStats.WriteLine("\n");
             // Load World Record
@@ -457,12 +459,12 @@ namespace LFSStatistics
 
         private void OnFinish(InSimDotNet.InSim insim, IS_FIN fin)
         {
-#if DEBUG
-            // Console.WriteLine("FINish (qualify or finish)");
-#endif
             if (raceStat.ContainsKey(fin.PLID))
             {
-                raceStat[fin.PLID].finished = true;
+                // Only mark as finished in race — in qualifying IS_FIN fires after each completed lap
+                if (sessionInfo.InRace())
+                    raceStat[fin.PLID].finished = true;
+
                 raceStat[fin.PLID].finPLID = fin.PLID;
             }
         }
@@ -543,10 +545,12 @@ namespace LFSStatistics
                         break;
                     case SessionInfo.Session.Qualification:
                         LFSStats.WriteLine("End of qualification by STAte", Verbose.Session);
+                        sessionFinished = true;
                         ExportQualStats(false);
                         break;
                     case SessionInfo.Session.Race:
                         LFSStats.WriteLine("End of race by STAte", Verbose.Session);
+                        sessionFinished = true;
                         ExportStatistics(false);
                         break;
                 }
@@ -669,19 +673,25 @@ namespace LFSStatistics
 
         private void OnContact(InSimDotNet.InSim insim, IS_CON con)
         {
-            // Track contacts for both players involved
-            if (raceStat.ContainsKey(con.A.PLID))
-            {
-                raceStat[con.A.PLID].contacts++;
-            }
-            if (raceStat.ContainsKey(con.B.PLID))
-            {
-                raceStat[con.B.PLID].contacts++;
-            }
+            // Only count contacts during official sessions (qual/race), not practice
+            if (sessionInfo.session == SessionInfo.Session.Practice || sessionInfo.session == SessionInfo.Session.None)
+                return;
 
-#if DEBUG
-            LFSStats.WriteLine($"Contact between PLID {con.A.PLID} and {con.B.PLID}", Verbose.Info);
-#endif
+            // Ignore contacts after session has ended
+            if (sessionFinished)
+                return;
+
+            // Ignore if either driver has already finished
+            if (raceStat.ContainsKey(con.A.PLID) && raceStat[con.A.PLID].finished)
+                return;
+            if (raceStat.ContainsKey(con.B.PLID) && raceStat[con.B.PLID].finished)
+                return;
+
+            // Count contact for both players
+            if (raceStat.ContainsKey(con.A.PLID))
+                raceStat[con.A.PLID].contacts++;
+            if (raceStat.ContainsKey(con.B.PLID))
+                raceStat[con.B.PLID].contacts++;
         }
 
         private void OnHotlapValidity(InSimDotNet.InSim insim, IS_HLV hlv)
@@ -813,17 +823,20 @@ namespace LFSStatistics
 
                 case SessionInfo.Session.Qualification: // End of Qualification
                     LFSStats.WriteLine("End of qualification by Race Start", Verbose.Session);
+                    sessionFinished = true;
                     ExportStatistics(true);
                     break;
 
                 case SessionInfo.Session.Race:          // End of Race
                     LFSStats.WriteLine("End of race by Race Start", Verbose.Session);
+                    sessionFinished = true;
                     ExportStatistics(true);
                     break;
             }
 
             LFSStats.ConsoleTitleRestore();
             sessionInfo.ExitSession();
+            sessionFinished = false;
             resetStatistics(); // resets the statistics before collecting new
 
             var fullTrackName = InSimDotNet.Helpers.TrackHelper.GetFullTrackName(rst.Track);
